@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Serviço do MongoDB
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: senhasegura
+      MONGO_INITDB_DATABASE: meubanco
+    volumes:
+      - dados_mongo:/data/db
+    networks:
+      - rede_app
+    # Segurança: Executa como usuário não-root (prática do MongoDB)
+    user: "mongodb"
+
+  # Backend (Node.js + Express)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://admin:senhasegura@mongodb:27017/meubanco?authSource=admin
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    networks:
+      - rede_app
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - rede_app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    # Habilita hot-reload para desenvolvimento
+    stdin_open: true
+    tty: true
+
+# Redes e Volumes
+networks:
+  rede_app:
+    driver: bridge
+
+volumes:
+  dados_mongo:

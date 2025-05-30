@@ -49,4 +49,4 @@ FROM python:3.11-slim
 
 ### Referências
 
-> Youtube: [Configurando as variáveis de ambiente no Windows](#https://www.youtube.com/watch?v=ing2pLCrvxo)
+> Youtube: [Configurando as variáveis de ambiente no Windows](https://www.youtube.com/watch?v=ing2pLCrvxo)
